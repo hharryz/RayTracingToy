@@ -111,8 +111,8 @@ Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
     Intersection isect;
     std::array<int, 3> dirIsNeg = {ray.direction.x < 0, ray.direction.y < 0,
                                    ray.direction.z < 0};
-    Vector3f invDir = {(float)1 / ray.direction.x, (float)1 / ray.direction.y,
-                      (float)1 / ray.direction.z};
+    Vector3f invDir = {1.f / ray.direction.x, 1.f / ray.direction.y,
+                      1.f / ray.direction.z};
     if (!node->bounds.IntersectP(ray, invDir, dirIsNeg))
         return isect;
     if (node->object) {
