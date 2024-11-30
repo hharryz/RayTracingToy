@@ -11,7 +11,35 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f
     // that's specified bt v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
     // Also don't forget to update tnear, u and v.
-    return false;
+    // Reference: https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+    const float kEpsilon = 1e-8;
+    Vector3f edge1 = v1 - v0;
+    Vector3f edge2 = v2 - v0;
+    Vector3f pvec = crossProduct(dir, edge2);
+    float det = dotProduct(edge1, pvec);
+
+    if (det < kEpsilon && det > -kEpsilon)
+        return false;   //  ray and triangle are parallel if det is close to 0
+
+    float invDet = 1.0 / det;
+    Vector3f tvec = orig - v0;
+    u = dotProduct(tvec, pvec) * invDet;
+
+    if ((u < 0 && abs(u) > kEpsilon) || (u > 1 && abs(u - 1) > kEpsilon))
+        return false;   //  intersection point is outside the triangle
+
+    Vector3f qvec = crossProduct(tvec, edge1);
+    v = dotProduct(dir, qvec) * invDet;
+
+    if ((v < 0 && abs(v) > kEpsilon) || (u + v > 1 && abs(u + v - 1) > kEpsilon))
+        return false;   //  intersection point is outside the triangle
+
+    tnear = dotProduct(edge2, qvec) * invDet;
+
+    if (tnear > kEpsilon)
+        return true;
+    else
+        return false;
 }
 
 class MeshTriangle : public Object
